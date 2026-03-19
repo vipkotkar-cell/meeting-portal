@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Meeting Portal | Warehouse Operations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FAFAFA;
+            --bg-card: #FFFFFF;
+            --bg-section: #F5F7FA;
+            --bg-sidebar: #1E293B;
+            --bg-sidebar-hover: #334155;
+            --bg-sidebar-active: #3B82F6;
+            --text-primary: #1A1D21;
+            --text-secondary: #5E6670;
+            --text-muted: #8C939D;
+            --text-sidebar: #CBD5E1;
+            --accent-blue: #2563EB;
+            --accent-blue-light: #EFF6FF;
+            --accent-green: #059669;
+            --accent-green-light: #ECFDF5;
+            --accent-amber: #D97706;
+            --accent-amber-light: #FFFBEB;
+            --accent-purple: #7C3AED;
+            --accent-purple-light: #F5F3FF;
+            --accent-rose: #E11D48;
+            --accent-rose-light: #FFF1F2;
+            --accent-cyan: #06B6D4;
+            --border-light: #E5E7EB;
+            --border-medium: #D1D5DB;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .sidebar-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-logo-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #fff;
+        }
+
+        .sidebar-section {
+            padding: 16px 12px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+
+        .meeting-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+
+        .meeting-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .meeting-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .meeting-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .meeting-item {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meeting-item:hover {
+            background: var(--bg-sidebar-hover);
+        }
+
+        .meeting-item.active {
+            background: var(--bg-sidebar-active);
+        }
+
+        .meeting-item-date {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .meeting-item-title {
+            font-size: 12px;
+            color: var(--text-sidebar);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .meeting-item.active .meeting-item-title {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .meeting-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .meeting-item.active .meeting-item-meta {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .add-meeting-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            margin: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px dashed rgba(255,255,255,0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-sidebar);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-meeting-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.5);
+            color: #fff;
+        }
+
+        .add-meeting-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .storage-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .storage-info svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Mobile Sidebar Toggle */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-sidebar);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            cursor: pointer;
+            z-index: 101;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2D5A87 50%, #1E3A5F 100%);
+            padding: 48px 24px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .edit-mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-mode-toggle:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .edit-mode-toggle span {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+        }
+
+        .edit-mode-toggle.active .toggle-switch {
+            background: var(--accent-green);
+        }
+
+        .edit-mode-toggle.active .toggle-switch::after {
+            transform: translateX(20px);
+        }
+
+        .header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        .header-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-meta-item svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: -48px auto 48px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Quick Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Fraunces', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-card.blue { border-top: 3px solid var(--accent-blue); }
+        .stat-card.green { border-top: 3px solid var(--accent-green); }
+        .stat-card.amber { border-top: 3px solid var(--accent-amber); }
+        .stat-card.purple { border-top: 3px solid var(--accent-purple); }
+
+        /* Card Styles */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .card-header:hover {
+            background: var(--bg-section);
+        }
+
+        .card-header h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: #1D4ED8;
+        }
+
+        .add-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        body.edit-mode .add-btn {
+            display: flex;
+        }
+
+        .card-toggle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-section);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card-toggle svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+        }
+
+        .card.collapsed .card-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .card-body {
+            padding: 24px;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+        }
+
+        .card.collapsed .card-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+
+        /* Editable Content */
+        .editable {
+            position: relative;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        body.edit-mode .editable {
+            background: var(--accent-blue-light);
+            padding: 2px 6px;
+            margin: -2px -6px;
+            cursor: text;
+        }
+
+        body.edit-mode .editable:hover {
+            background: #DBEAFE;
+        }
+
+        body.edit-mode .editable:focus {
+            outline: 2px solid var(--accent-blue);
+            background: #fff;
+        }
+
+        /* Tag System with Email */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .tag-shailendra {
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            color: #1E40AF;
+        }
+
+        .tag-shashank {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            color: #065F46;
+        }
+
+        .tag-manan {
+            background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+            color: #5B21B6;
+        }
+
+        .tag-vipul {
+            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+            color: #92400E;
+        }
+
+        .tag:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tag svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .tag-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .tag-name {
+            font-weight: 600;
+        }
+
+        .tag-email {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        /* Tag Dropdown */
+        .tag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 8px 0;
+            z-index: 1000;
+            min-width: 260px;
+            display: none;
+        }
+
+        .tag-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .tag-dropdown-item:hover {
+            background: var(--bg-section);
+        }
+
+        .tag-dropdown-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .tag-dropdown-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tag-dropdown-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .tag-dropdown-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Discussion Points */
+        .discussion-item {
+            padding: 20px;
+            background: var(--bg-section);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-blue);
+            transition: border-color 0.2s ease;
+            position: relative;
+        }
+
+        .discussion-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .discussion-item:nth-child(2) { border-left-color: var(--accent-green); }
+        .discussion-item:nth-child(3) { border-left-color: var(--accent-purple); }
+        .discussion-item:nth-child(4) { border-left-color: var(--accent-amber); }
+        .discussion-item:nth-child(5) { border-left-color: var(--accent-rose); }
+        .discussion-item:nth-child(6) { border-left-color: #06B6D4; }
+
+        .discussion-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .discussion-title {
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .discussion-number {
+            background: var(--text-primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .discussion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .discussion-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .discussion-content ul {
+            margin: 10px 0 0 20px;
+        }
+
+        .discussion-content li {
+            margin-bottom: 6px;
+        }
+
+        .delete-btn {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-rose-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent-rose);
+        }
+
+        .delete-btn:hover {
+            background: var(--accent-rose);
+        }
+
+        .delete-btn:hover svg {
+            color: #fff;
+        }
+
+        body.edit-mode .delete-btn {
+            display: flex;
+        }
+
+        /* Decision Pills */
+        .decisions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .decision-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--accent-green-light);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            position: relative;
+        }
+
+        .decision-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .decision-icon svg {
+            width: 14px;
+            height: 14px;
+            color: #fff;
+        }
+
+        .decision-content {
+            flex: 1;
+        }
+
+        .decision-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .decision-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        /* Action Items */
+        .action-item {
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .action-item:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-light);
+        }
+
+        .action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .action-task {
+            font-weight: 500;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .action-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-status:hover {
+            transform: scale(1.05);
+        }
+
+        .status-pending {
+            background: var(--accent-amber-light);
+            color: var(--accent-amber);
+        }
+
+        .status-upcoming {
+            background: var(--accent-blue-light);
+            color: var(--accent-blue);
+        }
+
+        .status-completed {
+            background: var(--accent-green-light);
+            color: var(--accent-green);
+        }
+
+        .status-dropdown {
+            position: absolute;
+            top: 40px;
+            right: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 8px 0;
+            z-index: 100;
+            display: none;
+        }
+
+        .status-dropdown.show {
+            display: block;
+        }
+
+        .status-option {
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .status-option:hover {
+            background: var(--bg-section);
+        }
+
+        .action-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .action-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-meta-item svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+        }
+
+        .owner-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        /* Add Tag Button */
+        .add-tag-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--bg-section);
+            border: 1px dashed var(--border-medium);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .add-tag-btn:hover {
+            background: var(--accent-blue-light);
+            border-color: var(--accent-blue);
+        }
+
+        .add-tag-btn svg {
+            width: 12px;
+            height: 12px;
+            color: var(--text-muted);
+        }
+
+        body.edit-mode .add-tag-btn {
+            display: flex;
+        }
+
+        /* Attendees */
+        .attendees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .attendee-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: var(--bg-section);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .attendee-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .attendee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .attendee-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .attendee-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .attendee-email {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* New Meeting Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-section);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-rose-light);
+        }
+
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-light);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-section);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-light);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1D4ED8;
+        }
+
+        /* Save Notification */
+        .save-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--accent-green);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .save-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .save-notification svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-section);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .empty-state-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .header {
+                padding-top: 80px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 80px 16px 64px;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+
+            .header-top {
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .edit-mode-toggle {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .attendees-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid, .card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle (Mobile) -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                <div>
+                    <div>Meeting Portal</div>
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 400;">Warehouse Operations</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Weekly Meetings</div>
+            <div class="meeting-list" id="meeting-list">
+                <!-- Meeting items will be dynamically added here -->
+            </div>
+            <button class="add-meeting-btn" onclick="showNewMeetingModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                New Meeting
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="storage-info">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+                Data saved locally in your browser
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div id="meeting-content">
+            <!-- Meeting content will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- New Meeting Modal -->
+    <div class="modal-overlay" id="new-meeting-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create New Meeting</h3>
+                <button class="modal-close" onclick="hideNewMeetingModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Meeting Date</label>
+                    <input type="date" class="form-input" id="meeting-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Meeting Title</label>
+                    <input type="text" class="form-input" id="meeting-title" placeholder="e.g., Warehouse Operations Review">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideNewMeetingModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createNewMeeting()">Create Meeting</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Notification -->
+    <div class="save-notification" id="save-notification">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Changes saved
+    </div>
+
+    <!-- Tag Dropdown Template (hidden) -->
+    <div class="tag-dropdown" id="tag-dropdown-template" style="display:none;">
+        <div class="tag-dropdown-item" data-name="Shailendra" data-email="shailendra@mosaicwellness.in">
+            <div class="tag-dropdown-avatar" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">S</div>
+            <div class="tag-dropdown-info">
+                <span class="tag-dropdown-name">Shailendra</span>
+                <span class="tag-dropdown-email">shailendra@mosaicwellness.in</span>
+            </div>
+        </div>
+        <div class="tag-dropdown-item" data-name="Shashank" data-email="shashank.upadhyay@mosaicwellness.in">
+            <div class="tag-dropdown-avatar" style="background: linear-gradient(135deg, #059669, #047857);">S</div>
+            <div class="tag-dropdown-info">
+                <span class="tag-dropdown-name">Shashank</span>
+                <span class="tag-dropdown-email">shashank.upadhyay@mosaicwellness.in</span>
+            </div>
+        </div>
+        <div class="tag-dropdown-item" data-name="Manan" data-email="manan.shah@mosaicwellness.in">
+            <div class="tag-dropdown-avatar" style="background: linear-gradient(135deg, #7C3AED, #6D28D9);">M</div>
+            <div class="tag-dropdown-info">
+                <span class="tag-dropdown-name">Manan</span>
+                <span class="tag-dropdown-email">manan.shah@mosaicwellness.in</span>
+            </div>
+        </div>
+        <div class="tag-dropdown-item" data-name="Vipul" data-email="vipul.kotkar@mosaicwellness.in">
+            <div class="tag-dropdown-avatar" style="background: linear-gradient(135deg, #D97706, #B45309);">V</div>
+            <div class="tag-dropdown-info">
+                <span class="tag-dropdown-name">Vipul</span>
+                <span class="tag-dropdown-email">vipul.kotkar@mosaicwellness.in</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Team members with email addresses
+        const teamMembers = {
+            'Shailendra': { email: 'shailendra@mosaicwellness.in', color: 'linear-gradient(135deg, #2563EB, #1D4ED8)', tagClass: 'tag-shailendra' },
+            'Shashank': { email: 'shashank.upadhyay@mosaicwellness.in', color: 'linear-gradient(135deg, #059669, #047857)', tagClass: 'tag-shashank' },
+            'Manan': { email: 'manan.shah@mosaicwellness.in', color: 'linear-gradient(135deg, #7C3AED, #6D28D9)', tagClass: 'tag-manan' },
+            'Vipul': { email: 'vipul.kotkar@mosaicwellness.in', color: 'linear-gradient(135deg, #D97706, #B45309)', tagClass: 'tag-vipul' }
+        };
+
+        let meetings = [];
+        let currentMeetingId = null;
+        let editMode = false;
+        let currentTagButton = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMeetings();
+            if (meetings.length === 0) {
+                // Create initial meeting
+                createInitialMeeting();
+            }
+            renderMeetingList();
+            if (meetings.length > 0) {
+                loadMeeting(meetings[0].id);
+            }
+        });
+
+        // Load meetings from localStorage
+        function loadMeetings() {
+            const stored = localStorage.getItem('warehouse_meetings');
+            if (stored) {
+                meetings = JSON.parse(stored);
+            }
+        }
+
+        // Save meetings to localStorage
+        function saveMeetings() {
+            localStorage.setItem('warehouse_meetings', JSON.stringify(meetings));
+            showSaveNotification();
+        }
+
+        // Create initial meeting with the data provided
+        function createInitialMeeting() {
+            const initialMeeting = {
+                id: 'meeting_' + Date.now(),
+                date: '2026-03-18',
+                title: 'Warehouse Operations & Transition Planning',
+                attendees: ['Shailendra', 'Shashank', 'Manan', 'Vipul'],
+                discussions: [
+                    {
+                        id: 1,
+                        title: "Reallocation of Shailendra's Additional Responsibilities",
+                        content: "Shailendra is managing responsibilities outside core warehousing scope that need reassignment:",
+                        details: [
+                            "<strong>FSSAI License Management</strong> → Move to Quality team (compliance & audit ownership)",
+                            "<strong>Pharmacist Management (RX Workflow)</strong> → Move to Quality team (critical for compliance & customer safety)",
+                            "<strong>Insurance Management</strong> (Marine, Fire, Theft) → Move to Finance team"
+                        ],
+                        tags: ['Shailendra'],
+                        highlight: 'Role Optimization'
+                    },
+                    {
+                        id: 2,
+                        title: "Department-wise Workforce Structuring",
+                        content: "Improving organizational clarity during warehouse transitions:",
+                        details: [
+                            "Implement department-wise segregation (Inventory, Returns, Operations)",
+                            "Structured transition phase with cross-functional exposure",
+                            "Post-transition: Independent department operations",
+                            "Performance measured via department-specific CRS metrics"
+                        ],
+                        tags: []
+                    },
+                    {
+                        id: 3,
+                        title: "Control Tower for KPI Management",
+                        content: "Establishing centralized visibility across all warehouse operations:",
+                        details: [
+                            "Monitor KPIs across self-operated, 3PL, and partner warehouses",
+                            "Track performance metrics, deviations, and escalations",
+                            "Enable faster issue resolution and better coordination"
+                        ],
+                        tags: ['Vipul', 'Shailendra'],
+                        highlight: 'Strategic Initiative'
+                    },
+                    {
+                        id: 4,
+                        title: "Warehouse Transition Planning",
+                        content: "Creating unified tracking for critical transitions:",
+                        details: [
+                            "Old ServiceLink → New ServiceLink warehouse",
+                            "Returns warehouse → Old ServiceLink warehouse",
+                            "Tracker includes: Task tracking, ownership, timelines, dependencies, cost implications"
+                        ],
+                        tags: ['Vipul']
+                    },
+                    {
+                        id: 5,
+                        title: "Inventory Segregation & Shelf Strategy",
+                        content: "Structured approach to inventory organization:",
+                        details: [
+                            "Physical segregation by brand",
+                            "Bulk vs fast-moving inventory placement",
+                            "Benefits: Higher picking efficiency, easier barcode implementation, reduced errors"
+                        ],
+                        tags: ['Vipul', 'Shailendra']
+                    },
+                    {
+                        id: 6,
+                        title: "AI & Automation for Operational Efficiency",
+                        content: "Identifying automation opportunities across operations:",
+                        details: [
+                            "Automate repetitive tasks on warehouse floor and system workflows",
+                            "Philosophy: Optimize productivity, not replace manpower",
+                            "Enable teams to focus on problem-solving and value-added work"
+                        ],
+                        tags: ['Shashank'],
+                        highlight: 'Digital Transformation'
+                    }
+                ],
+                decisions: [
+                    { id: 1, text: "<strong>FSSAI, Pharmacist Management & Insurance</strong> responsibilities to be formally classified as \"additional\" and transitioned to Quality and Finance teams respectively.", tags: ['Shailendra'] },
+                    { id: 2, text: "<strong>Unified transition tracker</strong> to be created covering both warehouse transitions with full cost visibility.", tags: ['Vipul'] },
+                    { id: 3, text: "<strong>Central Control Tower</strong> to be established for monitoring KPIs across all warehouse tiers.", tags: ['Vipul', 'Shailendra'] },
+                    { id: 4, text: "<strong>AI & Automation</strong> initiative to be pursued for optimizing workforce productivity without role replacement.", tags: ['Shashank'] }
+                ],
+                actions: [
+                    { id: 1, task: "Create unified transition tracker with cost visibility", status: "Urgent", statusClass: "status-pending", owners: ['Vipul'], deadline: "20 March 2026" },
+                    { id: 2, task: "Complete role transition for Shailendra's additional responsibilities", status: "In Progress", statusClass: "status-pending", owners: ['Shailendra'], deadline: "26 March 2026" },
+                    { id: 3, task: "Complete warehouse transition (Old → New ServiceLink)", status: "Upcoming", statusClass: "status-upcoming", owners: ['Vipul', 'Shailendra'], deadline: "15 April 2026" },
+                    { id: 4, task: "Setup Control Tower for KPI monitoring", status: "Planned", statusClass: "status-upcoming", owners: ['Vipul', 'Shailendra'], deadline: "1 May 2026" },
+                    { id: 5, task: "Identify and implement AI/Automation opportunities", status: "Ongoing", statusClass: "status-upcoming", owners: ['Shashank'], deadline: "Continuous" }
+                ],
+                comments: []
+            };
+            meetings.push(initialMeeting);
+            saveMeetings();
+        }
+
+        // Render meeting list in sidebar
+        function renderMeetingList() {
+            const list = document.getElementById('meeting-list');
+            list.innerHTML = '';
+
+            // Sort meetings by date (newest first)
+            const sortedMeetings = [...meetings].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedMeetings.forEach(meeting => {
+                const item = document.createElement('div');
+                item.className = 'meeting-item' + (meeting.id === currentMeetingId ? ' active' : '');
+                item.onclick = () => loadMeeting(meeting.id);
+
+                const dateObj = new Date(meeting.date);
+                const dateStr = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+                const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+
+                item.innerHTML = `
+                    <div class="meeting-item-date">${dateStr}</div>
+                    <div class="meeting-item-title">${meeting.title}</div>
+                    <div class="meeting-item-meta">
+                        <span>${weekday}</span>
+                        <span>•</span>
+                        <span>${meeting.actions?.length || 0} actions</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Load a specific meeting
+        function loadMeeting(meetingId) {
+            currentMeetingId = meetingId;
+            const meeting = meetings.find(m => m.id === meetingId);
+            if (!meeting) return;
+
+            renderMeetingList();
+            renderMeetingContent(meeting);
+        }
+
+        // Create tag HTML
+        function createTagHTML(name, includeAddBtn = false) {
+            const member = teamMembers[name];
+            if (!member) return '';
+
+            return `
+                <a href="mailto:${member.email}" class="tag ${member.tagClass}" title="Email ${name}">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    <div class="tag-info">
+                        <span class="tag-name">@${name}</span>
+                        <span class="tag-email">${member.email}</span>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Render meeting content
+        function renderMeetingContent(meeting) {
+            const dateObj = new Date(meeting.date);
+            const dateStr = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const content = document.getElementById('meeting-content');
+            content.innerHTML = `
+                <header class="header">
+                    <div class="header-content">
+                        <div class="header-top">
+                            <div>
+                                <div class="header-badge">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Meeting Summary
+                                </div>
+                            </div>
+                            <div class="header-actions">
+                                <div class="edit-mode-toggle ${editMode ? 'active' : ''}" onclick="toggleEditMode()">
+                                    <span>Edit Mode</span>
+                                    <div class="toggle-switch"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <h1 class="editable" contenteditable="${editMode}" data-field="title">${meeting.title}</h1>
+                        <div class="header-meta">
+                            <div class="header-meta-item">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                ${dateStr}
+                            </div>
+                            <div class="header-meta-item">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                ${meeting.attendees?.length || 0} Attendees
+                            </div>
+                            <div class="header-meta-item">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                ${meeting.actions?.length || 0} Action Items
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="container">
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card blue">
+                            <div class="stat-label">Discussion Topics</div>
+                            <div class="stat-value">${meeting.discussions?.length || 0}</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-label">Decisions Made</div>
+                            <div class="stat-value">${meeting.decisions?.length || 0}</div>
+                        </div>
+                        <div class="stat-card amber">
+                            <div class="stat-label">Action Items</div>
+                            <div class="stat-value">${meeting.actions?.length || 0}</div>
+                        </div>
+                        <div class="stat-card purple">
+                            <div class="stat-label">Attendees</div>
+                            <div class="stat-value">${meeting.attendees?.length || 0}</div>
+                        </div>
+                    </div>
+
+                    <!-- Attendees Card -->
+                    <div class="card" id="attendees-card">
+                        <div class="card-header" onclick="toggleCard('attendees-card')">
+                            <h2>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                Attendees
+                            </h2>
+                            <div class="card-header-actions">
+                                <div class="card-toggle">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="attendees-grid">
+                                ${(meeting.attendees || []).map(name => {
+                                    const member = teamMembers[name];
+                                    if (!member) return '';
+                                    return `
+                                        <a href="mailto:${member.email}" class="attendee-card">
+                                            <div class="attendee-avatar" style="background: ${member.color};">${name.charAt(0)}</div>
+                                            <div class="attendee-info">
+                                                <div class="attendee-name">${name}</div>
+                                                <div class="attendee-email">${member.email}</div>
+                                            </div>
+                                        </a>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Discussion Points -->
+                    <div class="card" id="discussions-card">
+                        <div class="card-header">
+                            <h2 onclick="toggleCard('discussions-card')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                Key Discussion Points
+                            </h2>
+                            <div class="card-header-actions">
+                                <button class="add-btn" onclick="event.stopPropagation(); addDiscussionPoint()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Add Point
+                                </button>
+                                <div class="card-toggle" onclick="toggleCard('discussions-card')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" id="discussions-body">
+                            ${(meeting.discussions || []).map((disc, idx) => `
+                                <div class="discussion-item" data-id="${disc.id}">
+                                    <button class="delete-btn" onclick="deleteDiscussion(${disc.id})">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                    <div class="discussion-header">
+                                        <div class="discussion-title">
+                                            <span class="discussion-number">${idx + 1}</span>
+                                            <span class="editable" contenteditable="${editMode}" data-field="discussion-title" data-id="${disc.id}">${disc.title}</span>
+                                        </div>
+                                        <div class="discussion-tags">
+                                            ${(disc.tags || []).map(tag => createTagHTML(tag)).join('')}
+                                            <button class="add-tag-btn" onclick="showTagDropdown(this, 'discussion', ${disc.id})">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="discussion-content">
+                                        <span class="editable" contenteditable="${editMode}" data-field="discussion-content" data-id="${disc.id}">${disc.content}</span>
+                                        ${disc.details?.length ? `<ul>${disc.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+                                        ${disc.highlight ? `
+                                            <span class="highlight-tag" style="margin-top: 12px; display: inline-flex; background: var(--accent-blue-light); color: var(--accent-blue); padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 600;">
+                                                ${disc.highlight}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Decisions Made -->
+                    <div class="card" id="decisions-card">
+                        <div class="card-header">
+                            <h2 onclick="toggleCard('decisions-card')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Decisions Made
+                            </h2>
+                            <div class="card-header-actions">
+                                <button class="add-btn" onclick="event.stopPropagation(); addDecision()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Add Decision
+                                </button>
+                                <div class="card-toggle" onclick="toggleCard('decisions-card')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="decisions-list" id="decisions-list">
+                                ${(meeting.decisions || []).map(dec => `
+                                    <div class="decision-item" data-id="${dec.id}">
+                                        <button class="delete-btn" onclick="deleteDecision(${dec.id})">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                        <div class="decision-icon">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        </div>
+                                        <div class="decision-content">
+                                            <div class="decision-text editable" contenteditable="${editMode}" data-field="decision-text" data-id="${dec.id}">${dec.text}</div>
+                                            <div class="decision-tags">
+                                                ${(dec.tags || []).map(tag => createTagHTML(tag)).join('')}
+                                                <button class="add-tag-btn" onclick="showTagDropdown(this, 'decision', ${dec.id})">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Items -->
+                    <div class="card" id="actions-card">
+                        <div class="card-header">
+                            <h2 onclick="toggleCard('actions-card')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                Action Items
+                            </h2>
+                            <div class="card-header-actions">
+                                <button class="add-btn" onclick="event.stopPropagation(); addActionItem()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Add Action
+                                </button>
+                                <div class="card-toggle" onclick="toggleCard('actions-card')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" id="actions-body">
+                            ${(meeting.actions || []).map(action => `
+                                <div class="action-item" data-id="${action.id}">
+                                    <button class="delete-btn" onclick="deleteAction(${action.id})">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                    <div class="action-header">
+                                        <div class="action-task editable" contenteditable="${editMode}" data-field="action-task" data-id="${action.id}">${action.task}</div>
+                                        <span class="action-status ${action.statusClass}" onclick="toggleStatusDropdown(this)" data-id="${action.id}">${action.status}</span>
+                                        <div class="status-dropdown">
+                                            <div class="status-option" onclick="setStatus(${action.id}, 'Urgent', 'status-pending')">Urgent</div>
+                                            <div class="status-option" onclick="setStatus(${action.id}, 'In Progress', 'status-pending')">In Progress</div>
+                                            <div class="status-option" onclick="setStatus(${action.id}, 'Upcoming', 'status-upcoming')">Upcoming</div>
+                                            <div class="status-option" onclick="setStatus(${action.id}, 'Completed', 'status-completed')">Completed</div>
+                                        </div>
+                                    </div>
+                                    <div class="action-meta">
+                                        <div class="action-meta-item owner-tags">
+                                            ${(action.owners || []).map(owner => createTagHTML(owner)).join('')}
+                                            <button class="add-tag-btn" onclick="showTagDropdown(this, 'action', ${action.id})">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="action-meta-item">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            <span class="editable" contenteditable="${editMode}" data-field="action-deadline" data-id="${action.id}">${action.deadline}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </main>
+            `;
+
+            // Re-apply edit mode if active
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+            }
+
+            // Add event listeners for editable content
+            setupEditableListeners();
+        }
+
+        // Setup editable content listeners
+        function setupEditableListeners() {
+            document.querySelectorAll('.editable').forEach(el => {
+                el.addEventListener('blur', () => {
+                    if (!editMode) return;
+                    saveCurrentMeeting();
+                });
+            });
+        }
+
+        // Save current meeting
+        function saveCurrentMeeting() {
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (!meeting) return;
+
+            // Save title
+            const titleEl = document.querySelector('[data-field="title"]');
+            if (titleEl) meeting.title = titleEl.textContent;
+
+            // Save discussions
+            document.querySelectorAll('[data-field="discussion-title"]').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const disc = meeting.discussions.find(d => d.id === id);
+                if (disc) disc.title = el.textContent;
+            });
+
+            document.querySelectorAll('[data-field="discussion-content"]').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const disc = meeting.discussions.find(d => d.id === id);
+                if (disc) disc.content = el.textContent;
+            });
+
+            // Save decisions
+            document.querySelectorAll('[data-field="decision-text"]').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const dec = meeting.decisions.find(d => d.id === id);
+                if (dec) dec.text = el.innerHTML;
+            });
+
+            // Save actions
+            document.querySelectorAll('[data-field="action-task"]').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const action = meeting.actions.find(a => a.id === id);
+                if (action) action.task = el.textContent;
+            });
+
+            document.querySelectorAll('[data-field="action-deadline"]').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const action = meeting.actions.find(a => a.id === id);
+                if (action) action.deadline = el.textContent;
+            });
+
+            saveMeetings();
+            renderMeetingList();
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.body.classList.toggle('edit-mode', editMode);
+
+            document.querySelectorAll('.editable').forEach(el => {
+                el.contentEditable = editMode;
+            });
+
+            document.querySelectorAll('.edit-mode-toggle').forEach(el => {
+                el.classList.toggle('active', editMode);
+            });
+
+            if (!editMode) {
+                saveCurrentMeeting();
+            }
+        }
+
+        // Toggle card collapse
+        function toggleCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.toggle('collapsed');
+            }
+        }
+
+        // Show tag dropdown
+        function showTagDropdown(button, type, itemId) {
+            if (!editMode) return;
+            event.stopPropagation();
+
+            // Remove any existing dropdowns
+            document.querySelectorAll('.tag-dropdown.show').forEach(d => d.remove());
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'tag-dropdown show';
+            dropdown.innerHTML = `
+                ${Object.entries(teamMembers).map(([name, info]) => `
+                    <div class="tag-dropdown-item" onclick="addTagToItem('${type}', ${itemId}, '${name}')">
+                        <div class="tag-dropdown-avatar" style="background: ${info.color};">${name.charAt(0)}</div>
+                        <div class="tag-dropdown-info">
+                            <span class="tag-dropdown-name">${name}</span>
+                            <span class="tag-dropdown-email">${info.email}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+
+            button.style.position = 'relative';
+            button.appendChild(dropdown);
+        }
+
+        // Add tag to item
+        function addTagToItem(type, itemId, name) {
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (!meeting) return;
+
+            let item;
+            if (type === 'discussion') {
+                item = meeting.discussions.find(d => d.id === itemId);
+                if (item && !item.tags) item.tags = [];
+                if (item && !item.tags.includes(name)) item.tags.push(name);
+            } else if (type === 'decision') {
+                item = meeting.decisions.find(d => d.id === itemId);
+                if (item && !item.tags) item.tags = [];
+                if (item && !item.tags.includes(name)) item.tags.push(name);
+            } else if (type === 'action') {
+                item = meeting.actions.find(a => a.id === itemId);
+                if (item && !item.owners) item.owners = [];
+                if (item && !item.owners.includes(name)) item.owners.push(name);
+            }
+
+            saveMeetings();
+            loadMeeting(currentMeetingId);
+        }
+
+        // Delete functions
+        function deleteDiscussion(id) {
+            if (!confirm('Delete this discussion point?')) return;
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                meeting.discussions = meeting.discussions.filter(d => d.id !== id);
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        function deleteDecision(id) {
+            if (!confirm('Delete this decision?')) return;
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                meeting.decisions = meeting.decisions.filter(d => d.id !== id);
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        function deleteAction(id) {
+            if (!confirm('Delete this action item?')) return;
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                meeting.actions = meeting.actions.filter(a => a.id !== id);
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        // Add functions
+        function addDiscussionPoint() {
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                const newId = Math.max(0, ...meeting.discussions.map(d => d.id)) + 1;
+                meeting.discussions.push({
+                    id: newId,
+                    title: 'New Discussion Point',
+                    content: 'Enter details here...',
+                    details: [],
+                    tags: []
+                });
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        function addDecision() {
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                const newId = Math.max(0, ...meeting.decisions.map(d => d.id)) + 1;
+                meeting.decisions.push({
+                    id: newId,
+                    text: 'New decision...',
+                    tags: []
+                });
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        function addActionItem() {
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                const newId = Math.max(0, ...meeting.actions.map(a => a.id)) + 1;
+                meeting.actions.push({
+                    id: newId,
+                    task: 'New action item...',
+                    status: 'Upcoming',
+                    statusClass: 'status-upcoming',
+                    owners: [],
+                    deadline: 'Set deadline'
+                });
+                saveMeetings();
+                loadMeeting(currentMeetingId);
+            }
+        }
+
+        // Status functions
+        function toggleStatusDropdown(element) {
+            event.stopPropagation();
+            const dropdown = element.nextElementSibling;
+            document.querySelectorAll('.status-dropdown.show').forEach(d => {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+            dropdown.classList.toggle('show');
+        }
+
+        function setStatus(actionId, status, statusClass) {
+            event.stopPropagation();
+            const meeting = meetings.find(m => m.id === currentMeetingId);
+            if (meeting) {
+                const action = meeting.actions.find(a => a.id === actionId);
+                if (action) {
+                    action.status = status;
+                    action.statusClass = statusClass;
+                    saveMeetings();
+                    loadMeeting(currentMeetingId);
+                }
+            }
+        }
+
+        // New meeting modal functions
+        function showNewMeetingModal() {
+            document.getElementById('new-meeting-modal').classList.add('show');
+            document.getElementById('meeting-date').valueAsDate = new Date();
+            document.getElementById('meeting-title').value = '';
+        }
+
+        function hideNewMeetingModal() {
+            document.getElementById('new-meeting-modal').classList.remove('show');
+        }
+
+        function createNewMeeting() {
+            const date = document.getElementById('meeting-date').value;
+            const title = document.getElementById('meeting-title').value || 'Weekly Meeting';
+
+            const newMeeting = {
+                id: 'meeting_' + Date.now(),
+                date: date,
+                title: title,
+                attendees: ['Shailendra', 'Shashank', 'Manan', 'Vipul'],
+                discussions: [],
+                decisions: [],
+                actions: [],
+                comments: []
+            };
+
+            meetings.push(newMeeting);
+            saveMeetings();
+            renderMeetingList();
+            loadMeeting(newMeeting.id);
+            hideNewMeetingModal();
+        }
+
+        // Sidebar toggle (mobile)
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Show save notification
+        function showSaveNotification() {
+            const notification = document.getElementById('save-notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Close dropdowns on click outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.tag-dropdown') && !e.target.closest('.add-tag-btn')) {
+                document.querySelectorAll('.tag-dropdown.show').forEach(d => d.remove());
+            }
+            if (!e.target.closest('.status-dropdown') && !e.target.closest('.action-status')) {
+                document.querySelectorAll('.status-dropdown.show').forEach(d => d.classList.remove('show'));
+            }
+            if (!e.target.closest('.sidebar') && !e.target.closest('.sidebar-toggle')) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
