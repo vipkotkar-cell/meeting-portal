@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Creator | Warehouse Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #F8FAFC; --bg-card: #FFFFFF; --bg-section: #F1F5F9;
+            --text-primary: #1E293B; --text-secondary: #64748B; --text-muted: #94A3B8;
+            --accent-blue: #3B82F6; --accent-blue-light: #EFF6FF;
+            --accent-green: #10B981; --accent-green-light: #ECFDF5;
+            --accent-amber: #F59E0B; --accent-amber-light: #FFFBEB;
+            --accent-purple: #8B5CF6; --accent-purple-light: #F5F3FF;
+            --accent-rose: #F43F5E; --accent-rose-light: #FFF1F2;
+            --accent-cyan: #06B6D4; --accent-cyan-light: #ECFEFF;
+            --border-light: #E2E8F0; --border-medium: #CBD5E1;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+        
+        .header { background: linear-gradient(135deg, #1E3A5F 0%, #3B82F6 100%); padding: 32px 24px; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .header-icon svg { width: 28px; height: 28px; color: #fff; }
+        .header h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; color: #fff; }
+        .header p { font-size: 14px; color: rgba(255,255,255,0.8); }
+        .header-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
+        .header-btn svg { width: 18px; height: 18px; }
+        
+        .main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+        
+        @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+        
+        .panel { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border-light); overflow: hidden; }
+        .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 12px; }
+        .panel-header h2 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; }
+        .panel-header svg { width: 22px; height: 22px; color: var(--accent-blue); }
+        .panel-body { padding: 24px; }
+        
+        .form-group { margin-bottom: 24px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .form-label svg { width: 16px; height: 16px; color: var(--text-muted); }
+        .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; transition: all 0.2s; background: var(--bg-card); }
+        .form-input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 4px var(--accent-blue-light); }
+        .form-input::placeholder { color: var(--text-muted); }
+        
+        .form-textarea { width: 100%; min-height: 120px; padding: 14px 16px; border: 2px solid var(--border-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical; transition: all 0.2s; background: var(--bg-card); }
+        .form-textarea:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 4px var(--accent-blue-light); }
+        .form-textarea.large { min-height: 180px; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+        
+        .attendee-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .attendee-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 50px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        .attendee-chip.selected { border-color: currentColor; }
+        .attendee-chip svg { width: 16px; height: 16px; }
+        .chip-shailendra { background: var(--accent-blue-light); color: #1E40AF; }
+        .chip-shailendra.selected { background: #DBEAFE; }
+        .chip-shashank { background: var(--accent-green-light); color: #065F46; }
+        .chip-shashank.selected { background: #D1FAE5; }
+        .chip-manan { background: var(--accent-purple-light); color: #5B21B6; }
+        .chip-manan.selected { background: #EDE9FE; }
+        .chip-vipul { background: var(--accent-amber-light); color: #92400E; }
+        .chip-vipul.selected { background: #FEF3C7; }
+        
+        .section-divider { display: flex; align-items: center; gap: 12px; margin: 28px 0; }
+        .section-divider span { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+        
+        .action-row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 12px; background: var(--bg-section); border-radius: var(--radius-sm); margin-bottom: 12px; align-items: start; }
+        .action-row:last-child { margin-bottom: 0; }
+        .action-row input { padding: 10px 14px; }
+        .action-row select { padding: 10px 14px; border: 2px solid var(--border-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; background: var(--bg-card); cursor: pointer; min-width: 120px; }
+        .action-row select:focus { outline: none; border-color: var(--accent-blue); }
+        
+        .add-action-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background: var(--bg-section); border: 2px dashed var(--border-medium); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+        .add-action-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--accent-blue-light); }
+        .add-action-btn svg { width: 18px; height: 18px; }
+        
+        .remove-btn { width: 36px; height: 36px; border: none; background: var(--accent-rose-light); border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .remove-btn:hover { background: var(--accent-rose); }
+        .remove-btn:hover svg { color: #fff; }
+        .remove-btn svg { width: 16px; height: 16px; color: var(--accent-rose); }
+        
+        .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+        .btn { padding: 14px 28px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn svg { width: 20px; height: 20px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-blue), #2563EB); color: #fff; flex: 1; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .btn-secondary { background: var(--bg-section); color: var(--text-primary); padding: 14px 20px; }
+        .btn-secondary:hover { background: var(--border-light); }
+        .btn-success { background: linear-gradient(135deg, var(--accent-green), #059669); color: #fff; flex: 1; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+        
+        /* Preview Panel */
+        .preview-empty { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+        .preview-empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
+        .preview-empty p { font-size: 14px; }
+        
+        .preview-content { padding: 24px; }
+        .preview-header { margin-bottom: 24px; }
+        .preview-date { font-size: 13px; color: var(--accent-blue); font-weight: 600; margin-bottom: 4px; }
+        .preview-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .preview-attendees { display: flex; flex-wrap: wrap; gap: 6px; }
+        .preview-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .preview-tag svg { width: 12px; height: 12px; }
+        
+        .preview-section { margin-bottom: 20px; }
+        .preview-section:last-child { margin-bottom: 0; }
+        .preview-section-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .preview-section-title svg { width: 16px; height: 16px; }
+        
+        .preview-item { padding: 12px 16px; background: var(--bg-section); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--accent-blue); }
+        .preview-item:nth-child(2) { border-left-color: var(--accent-green); }
+        .preview-item:nth-child(3) { border-left-color: var(--accent-purple); }
+        .preview-item:nth-child(4) { border-left-color: var(--accent-amber); }
+        
+        .preview-decision { padding: 12px 16px; background: var(--accent-green-light); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+        .preview-decision-icon { width: 20px; height: 20px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .preview-decision-icon svg { width: 12px; height: 12px; color: #fff; }
+        
+        .preview-action { padding: 12px 16px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); margin-bottom: 8px; }
+        .preview-action-header { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; }
+        .preview-action-task { font-size: 14px; font-weight: 500; flex: 1; }
+        .preview-action-status { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; }
+        .status-pending { background: var(--accent-amber-light); color: #B45309; }
+        .status-urgent { background: var(--accent-rose-light); color: #BE123C; }
+        .status-upcoming { background: var(--accent-blue-light); color: #1D4ED8; }
+        .preview-action-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+        
+        .preview-summary { padding: 16px; background: var(--accent-cyan-light); border-radius: var(--radius-sm); font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        
+        /* Success Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal { background: var(--bg-card); border-radius: var(--radius-lg); width: 90%; max-width: 440px; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.show .modal { transform: scale(1); }
+        .modal-icon { width: 72px; height: 72px; background: var(--accent-green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .modal-icon svg { width: 36px; height: 36px; color: var(--accent-green); }
+        .modal h3 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; margin-bottom: 12px; }
+        .modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+        .modal-btns { display: flex; gap: 12px; }
+        .modal-btns .btn { flex: 1; }
+        
+        /* Notification */
+        .notification { position: fixed; bottom: 24px; right: 24px; background: var(--accent-green); color: #fff; padding: 14px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1001; }
+        .notification.show { transform: translateY(0); opacity: 1; }
+        .notification svg { width: 20px; height: 20px; }
+        
+        /* Quick paste mode */
+        .mode-toggle { display: flex; background: var(--bg-section); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 24px; }
+        .mode-btn { flex: 1; padding: 10px 16px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .mode-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+        .mode-btn svg { width: 16px; height: 16px; }
+        
+        .mode-content { display: none; }
+        .mode-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                </div>
+                <div>
+                    <h1>Meeting Creator</h1>
+                    <p>Create and format meeting notes instantly</p>
+                </div>
+            </div>
+            <a href="index.html" class="header-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Input Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <h2>Meeting Details</h2>
+            </div>
+            <div class="panel-body">
+                <!-- Mode Toggle -->
+                <div class="mode-toggle">
+                    <button class="mode-btn active" onclick="setMode('structured')">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                        Structured Input
+                    </button>
+                    <button class="mode-btn" onclick="setMode('paste')">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        Quick Paste
+                    </button>
+                </div>
+
+                <!-- Structured Input Mode -->
+                <div class="mode-content active" id="mode-structured">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Meeting Date
+                            </label>
+                            <input type="date" class="form-input" id="meeting-date" onchange="updatePreview()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                                Meeting Title
+                            </label>
+                            <input type="text" class="form-input" id="meeting-title" placeholder="e.g., Supply Chain Review" onkeyup="updatePreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            Attendees
+                        </label>
+                        <div class="attendee-chips">
+                            <div class="attendee-chip chip-shailendra selected" onclick="toggleAttendee(this, 'Shailendra')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Shailendra
+                            </div>
+                            <div class="attendee-chip chip-shashank selected" onclick="toggleAttendee(this, 'Shashank')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Shashank
+                            </div>
+                            <div class="attendee-chip chip-manan" onclick="toggleAttendee(this, 'Manan')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Manan
+                            </div>
+                            <div class="attendee-chip chip-vipul" onclick="toggleAttendee(this, 'Vipul')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Vipul
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-divider"><span>Content</span></div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            Discussion Points
+                        </label>
+                        <textarea class="form-textarea large" id="discussions" placeholder="Enter each discussion point on a new line:&#10;&#10;- Supply chain metrics improved&#10;- Dispatch rate at 85%, target 90%&#10;- Inventory issues: ₹7.2 Cr aging stock" onkeyup="updatePreview()"></textarea>
+                        <p class="form-hint">Use bullet points (-) or new lines. Mention @names to auto-tag.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Decisions Made
+                        </label>
+                        <textarea class="form-textarea" id="decisions" placeholder="Enter each decision on a new line:&#10;&#10;- Implement nearest warehouse logic&#10;- Setup automated inventory triggers" onkeyup="updatePreview()"></textarea>
+                    </div>
+
+                    <div class="section-divider"><span>Action Items</span></div>
+
+                    <div id="action-items">
+                        <div class="action-row">
+                            <input type="text" class="form-input" placeholder="Action item..." onkeyup="updatePreview()">
+                            <select onchange="updatePreview()">
+                                <option value="upcoming">Upcoming</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <button class="remove-btn" onclick="removeAction(this)" style="visibility:hidden">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="add-action-btn" onclick="addAction()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Add Action Item
+                    </button>
+
+                    <div class="section-divider"><span>Summary (Optional)</span></div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Executive Summary
+                        </label>
+                        <textarea class="form-textarea" id="summary" placeholder="Brief overview of the meeting (auto-generates if left empty)" onkeyup="updatePreview()"></textarea>
+                    </div>
+                </div>
+
+                <!-- Quick Paste Mode -->
+                <div class="mode-content" id="mode-paste">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            Paste Raw Meeting Notes
+                        </label>
+                        <textarea class="form-textarea large" id="raw-paste" style="min-height:300px" placeholder="Paste your meeting notes here...&#10;&#10;The system will auto-extract:&#10;• Meeting title & date&#10;• Discussion points&#10;• Decisions made&#10;• Action items&#10;• @mentions for tagging" onkeyup="parseRawNotes()"></textarea>
+                        <p class="form-hint">Paste from Granola, Notion, or any source. We'll parse it automatically!</p>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="clearForm()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                    <button class="btn btn-success" onclick="saveMeeting()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Create Meeting
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <h2>Live Preview</h2>
+            </div>
+            <div id="preview-container">
+                <div class="preview-empty">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <p>Start entering meeting details<br>to see a live preview</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal">
+            <div class="modal-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3>Meeting Created!</h3>
+            <p>Your meeting has been saved to the dashboard.</p>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeModal(); clearForm();">Create Another</button>
+                <a href="index.html" class="btn btn-primary">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span id="notification-text">Saved!</span>
+    </div>
+
+    <script>
+        const teamMembers = {
+            'Shailendra': { email: 'shailendra@mosaicwellness.in', tagClass: 'chip-shailendra' },
+            'Shashank': { email: 'shashank.upadhyay@mosaicwellness.in', tagClass: 'chip-shashank' },
+            'Manan': { email: 'manan.shah@mosaicwellness.in', tagClass: 'chip-manan' },
+            'Vipul': { email: 'vipul.kotkar@mosaicwellness.in', tagClass: 'chip-vipul' }
+        };
+
+        let selectedAttendees = ['Shailendra', 'Shashank'];
+        let currentMode = 'structured';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('meeting-date').valueAsDate = new Date();
+            updatePreview();
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.mode-btn:nth-child(${mode === 'structured' ? 1 : 2})`).classList.add('active');
+            document.getElementById(`mode-${mode}`).classList.add('active');
+        }
+
+        function toggleAttendee(el, name) {
+            el.classList.toggle('selected');
+            const isSelected = el.classList.contains('selected');
+            const checkIcon = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+            const plusIcon = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+            el.innerHTML = (isSelected ? checkIcon : plusIcon) + name;
+            
+            if (isSelected) {
+                if (!selectedAttendees.includes(name)) selectedAttendees.push(name);
+            } else {
+                selectedAttendees = selectedAttendees.filter(a => a !== name);
+            }
+            updatePreview();
+        }
+
+        function addAction() {
+            const container = document.getElementById('action-items');
+            const row = document.createElement('div');
+            row.className = 'action-row';
+            row.innerHTML = `
+                <input type="text" class="form-input" placeholder="Action item..." onkeyup="updatePreview()">
+                <select onchange="updatePreview()">
+                    <option value="upcoming">Upcoming</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <button class="remove-btn" onclick="removeAction(this)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            `;
+            container.appendChild(row);
+            updatePreview();
+        }
+
+        function removeAction(btn) {
+            btn.parentElement.remove();
+            updatePreview();
+        }
+
+        function extractTags(text) {
+            return Object.keys(teamMembers).filter(n => text.toLowerCase().includes(n.toLowerCase()) || text.includes('@' + n));
+        }
+
+        function parseLines(text) {
+            return text.split('\n')
+                .map(l => l.replace(/^[-•●*]\s*/, '').trim())
+                .filter(l => l.length > 0);
+        }
+
+        function updatePreview() {
+            const date = document.getElementById('meeting-date').value;
+            const title = document.getElementById('meeting-title').value;
+            const discussions = parseLines(document.getElementById('discussions').value);
+            const decisions = parseLines(document.getElementById('decisions').value);
+            const summary = document.getElementById('summary').value;
+            
+            const actionRows = document.querySelectorAll('#action-items .action-row');
+            const actions = [];
+            actionRows.forEach(row => {
+                const task = row.querySelector('input').value.trim();
+                const status = row.querySelector('select').value;
+                if (task) actions.push({ task, status });
+            });
+
+            if (!title && discussions.length === 0 && decisions.length === 0 && actions.length === 0) {
+                document.getElementById('preview-container').innerHTML = `
+                    <div class="preview-empty">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p>Start entering meeting details<br>to see a live preview</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const dateObj = new Date(date);
+            const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            let html = `<div class="preview-content">
+                <div class="preview-header">
+                    <div class="preview-date">${dateStr}</div>
+                    <div class="preview-title">${title || 'Untitled Meeting'}</div>
+                    <div class="preview-attendees">
+                        ${selectedAttendees.map(a => `<span class="preview-tag ${teamMembers[a]?.tagClass || ''}"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>@${a}</span>`).join('')}
+                    </div>
+                </div>`;
+
+            if (summary) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Summary</div>
+                    <div class="preview-summary">${summary}</div>
+                </div>`;
+            }
+
+            if (discussions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Discussions (${discussions.length})</div>
+                    ${discussions.map(d => `<div class="preview-item">${d}</div>`).join('')}
+                </div>`;
+            }
+
+            if (decisions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Decisions (${decisions.length})</div>
+                    ${decisions.map(d => `<div class="preview-decision"><div class="preview-decision-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div><div>${d}</div></div>`).join('')}
+                </div>`;
+            }
+
+            if (actions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Actions (${actions.length})</div>
+                    ${actions.map(a => {
+                        const statusClass = a.status === 'urgent' ? 'status-urgent' : a.status === 'in-progress' ? 'status-pending' : 'status-upcoming';
+                        const statusLabel = a.status === 'in-progress' ? 'In Progress' : a.status.charAt(0).toUpperCase() + a.status.slice(1);
+                        return `<div class="preview-action">
+                            <div class="preview-action-header">
+                                <div class="preview-action-task">${a.task}</div>
+                                <span class="preview-action-status ${statusClass}">${statusLabel}</span>
+                            </div>
+                            <div class="preview-action-meta">
+                                <span>Owner: ${extractTags(a.task).join(', ') || 'TBD'}</span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            }
+
+            html += '</div>';
+            document.getElementById('preview-container').innerHTML = html;
+        }
+
+        function parseRawNotes() {
+            const text = document.getElementById('raw-paste').value;
+            if (!text.trim()) {
+                document.getElementById('preview-container').innerHTML = `
+                    <div class="preview-empty">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p>Paste your meeting notes<br>to see a live preview</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Auto-extract
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            let title = lines[0]?.length < 80 ? lines[0] : 'Imported Meeting';
+            
+            // Find attendees
+            const attendees = [];
+            Object.keys(teamMembers).forEach(name => {
+                if (text.toLowerCase().includes(name.toLowerCase())) attendees.push(name);
+            });
+
+            // Extract bullets as discussions
+            const discussions = [];
+            const bullets = text.matchAll(/(?:^|\n)[-•●*]\s*(.{10,200})/gm);
+            for (const m of bullets) {
+                discussions.push(m[1]);
+                if (discussions.length >= 8) break;
+            }
+
+            // Look for decisions
+            const decisions = [];
+            const decMatch = text.match(/(?:Decisions?|Agreed|Concluded)[:\s]*\n?([\s\S]*?)(?=(?:Action|Next|$))/i);
+            if (decMatch) {
+                decMatch[1].split('\n').forEach(l => {
+                    const c = l.replace(/^[-•●*\d.)\]]+\s*/, '').trim();
+                    if (c.length > 5) decisions.push(c);
+                });
+            }
+
+            // Look for actions
+            const actions = [];
+            const actMatch = text.match(/(?:Action Items?|Next Steps?|To.?Do)[:\s]*\n?([\s\S]*?)$/i);
+            if (actMatch) {
+                actMatch[1].split('\n').forEach(l => {
+                    const c = l.replace(/^[-•●*\d.)\]]+\s*/, '').trim();
+                    if (c.length > 5) actions.push({ task: c, status: 'upcoming' });
+                });
+            }
+
+            // Update preview
+            const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            let html = `<div class="preview-content">
+                <div class="preview-header">
+                    <div class="preview-date">${dateStr}</div>
+                    <div class="preview-title">${title}</div>
+                    <div class="preview-attendees">
+                        ${attendees.map(a => `<span class="preview-tag ${teamMembers[a]?.tagClass || ''}"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>@${a}</span>`).join('')}
+                    </div>
+                </div>`;
+
+            if (discussions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Discussions (${discussions.length})</div>
+                    ${discussions.map(d => `<div class="preview-item">${d}</div>`).join('')}
+                </div>`;
+            }
+
+            if (decisions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Decisions (${decisions.length})</div>
+                    ${decisions.map(d => `<div class="preview-decision"><div class="preview-decision-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div><div>${d}</div></div>`).join('')}
+                </div>`;
+            }
+
+            if (actions.length > 0) {
+                html += `<div class="preview-section">
+                    <div class="preview-section-title"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Actions (${actions.length})</div>
+                    ${actions.map(a => `<div class="preview-action">
+                        <div class="preview-action-header">
+                            <div class="preview-action-task">${a.task}</div>
+                            <span class="preview-action-status status-upcoming">Upcoming</span>
+                        </div>
+                    </div>`).join('')}
+                </div>`;
+            }
+
+            html += '</div>';
+            document.getElementById('preview-container').innerHTML = html;
+        }
+
+        function saveMeeting() {
+            let meeting;
+
+            if (currentMode === 'structured') {
+                const date = document.getElementById('meeting-date').value;
+                const title = document.getElementById('meeting-title').value || 'New Meeting';
+                const discussionText = document.getElementById('discussions').value;
+                const decisionText = document.getElementById('decisions').value;
+                const summary = document.getElementById('summary').value;
+
+                const discussions = parseLines(discussionText).map((d, i) => ({
+                    id: i + 1,
+                    title: d.length > 50 ? d.substring(0, 50) + '...' : d,
+                    content: d,
+                    details: [],
+                    tags: extractTags(d)
+                }));
+
+                const decisions = parseLines(decisionText).map((d, i) => ({
+                    id: i + 1,
+                    text: d,
+                    tags: extractTags(d)
+                }));
+
+                const actionRows = document.querySelectorAll('#action-items .action-row');
+                const actions = [];
+                let actId = 1;
+                actionRows.forEach(row => {
+                    const task = row.querySelector('input').value.trim();
+                    const status = row.querySelector('select').value;
+                    if (task) {
+                        actions.push({
+                            id: actId++,
+                            task,
+                            status: status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1),
+                            statusClass: status === 'urgent' ? 'status-urgent' : status === 'in-progress' ? 'status-pending' : 'status-upcoming',
+                            owners: extractTags(task),
+                            deadline: 'TBD'
+                        });
+                    }
+                });
+
+                meeting = {
+                    id: 'meeting_' + Date.now(),
+                    date,
+                    title,
+                    summary: summary || generateSummary(discussions, decisions, actions),
+                    attendees: selectedAttendees,
+                    discussions,
+                    decisions,
+                    actions
+                };
+            } else {
+                // Quick paste mode
+                const text = document.getElementById('raw-paste').value;
+                meeting = parseRawText(text);
+            }
+
+            // Save to localStorage
+            let meetings = [];
+            const stored = localStorage.getItem('warehouse_meetings_v2');
+            if (stored) meetings = JSON.parse(stored);
+            meetings.unshift(meeting);
+            localStorage.setItem('warehouse_meetings_v2', JSON.stringify(meetings));
+
+            // Show success modal
+            document.getElementById('success-modal').classList.add('show');
+        }
+
+        function parseRawText(text) {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            let title = lines[0]?.length < 80 ? lines[0] : 'Imported Meeting';
+            let dateStr = new Date().toISOString().split('T')[0];
+
+            const attendees = [];
+            Object.keys(teamMembers).forEach(name => {
+                if (text.toLowerCase().includes(name.toLowerCase())) attendees.push(name);
+            });
+            if (attendees.length === 0) attendees.push('Shailendra', 'Shashank');
+
+            const discussions = [];
+            let discId = 1;
+            const bullets = text.matchAll(/(?:^|\n)[-•●*]\s*(.{10,200})/gm);
+            for (const m of bullets) {
+                discussions.push({ id: discId++, title: m[1].substring(0, 50), content: m[1], details: [], tags: extractTags(m[1]) });
+                if (discussions.length >= 8) break;
+            }
+
+            const decisions = [];
+            const decMatch = text.match(/(?:Decisions?|Agreed)[:\s]*\n?([\s\S]*?)(?=(?:Action|$))/i);
+            if (decMatch) {
+                let decId = 1;
+                decMatch[1].split('\n').forEach(l => {
+                    const c = l.replace(/^[-•●*\d.)\]]+\s*/, '').trim();
+                    if (c.length > 5) decisions.push({ id: decId++, text: c, tags: extractTags(c) });
+                });
+            }
+
+            const actions = [];
+            const actMatch = text.match(/(?:Action Items?|Next Steps?)[:\s]*\n?([\s\S]*?)$/i);
+            if (actMatch) {
+                let actId = 1;
+                actMatch[1].split('\n').forEach(l => {
+                    const c = l.replace(/^[-•●*\d.)\]]+\s*/, '').trim();
+                    if (c.length > 5) actions.push({ id: actId++, task: c, status: 'Upcoming', statusClass: 'status-upcoming', owners: extractTags(c), deadline: 'TBD' });
+                });
+            }
+
+            return {
+                id: 'meeting_' + Date.now(),
+                date: dateStr,
+                title,
+                summary: generateSummary(discussions, decisions, actions),
+                attendees,
+                discussions,
+                decisions,
+                actions
+            };
+        }
+
+        function generateSummary(discussions, decisions, actions) {
+            const parts = [];
+            if (discussions.length > 0) parts.push(`${discussions.length} topics discussed`);
+            if (decisions.length > 0) parts.push(`${decisions.length} key decisions made`);
+            if (actions.length > 0) parts.push(`${actions.length} action items assigned`);
+            return parts.length > 0 ? `Meeting covered ${parts.join(', ')}.` : '';
+        }
+
+        function clearForm() {
+            document.getElementById('meeting-title').value = '';
+            document.getElementById('discussions').value = '';
+            document.getElementById('decisions').value = '';
+            document.getElementById('summary').value = '';
+            document.getElementById('raw-paste').value = '';
+            document.getElementById('action-items').innerHTML = `
+                <div class="action-row">
+                    <input type="text" class="form-input" placeholder="Action item..." onkeyup="updatePreview()">
+                    <select onchange="updatePreview()">
+                        <option value="upcoming">Upcoming</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                    <button class="remove-btn" onclick="removeAction(this)" style="visibility:hidden">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            `;
+            updatePreview();
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').classList.remove('show');
+        }
+
+        function showNotification(msg) {
+            const n = document.getElementById('notification');
+            document.getElementById('notification-text').textContent = msg;
+            n.classList.add('show');
+            setTimeout(() => n.classList.remove('show'), 2500);
+        }
+    </script>
+</body>
+</html>
